@@ -92,6 +92,11 @@ export class BackupSelection extends Resource implements iam.IGrantable {
    */
   public readonly grantPrincipal: iam.IPrincipal;
 
+  /**
+   * The IAM role that AWS Backup uses for authentication when backing up or restoring resources
+   */
+  public readonly role: iam.IRole;
+
   private listOfTags: CfnBackupSelection.ConditionResourceTypeProperty[] = [];
   private resources: string[] = [];
   private readonly backupableResourcesCollector = new BackupableResourcesCollector();
@@ -110,6 +115,7 @@ export class BackupSelection extends Resource implements iam.IGrantable {
     if (props.allowRestores) {
       role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSBackupServiceRolePolicyForRestores'));
     }
+    this.role = role;
     this.grantPrincipal = role;
 
     const selection = new CfnBackupSelection(this, 'Resource', {

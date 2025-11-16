@@ -3,6 +3,7 @@ import { Match, Template } from '../../assertions';
 import * as dynamodb from '../../aws-dynamodb';
 import * as ec2 from '../../aws-ec2';
 import * as efs from '../../aws-efs';
+import * as iam from '../../aws-iam';
 import * as rds from '../../aws-rds';
 import { RemovalPolicy, Stack } from '../../core';
 import { BackupPlan, BackupResource, BackupSelection } from '../lib';
@@ -683,4 +684,38 @@ test('fromRdsServerlessCluster', () => {
       SelectionName: 'Selection',
     },
   });
+});
+
+test('role property is accessible', () => {
+  // WHEN
+  const selection = new BackupSelection(stack, 'Selection', {
+    backupPlan: plan,
+    resources: [
+      BackupResource.fromArn('arn1'),
+    ],
+  });
+
+  // THEN
+  expect(selection.role).toBeDefined();
+  expect(selection.role.roleArn).toBeDefined();
+});
+
+test('role property is accessible when role is provided', () => {
+  // GIVEN
+  const customRole = new iam.Role(stack, 'CustomRole', {
+    assumedBy: new iam.ServicePrincipal('backup.amazonaws.com'),
+  });
+
+  // WHEN
+  const selection = new BackupSelection(stack, 'Selection', {
+    backupPlan: plan,
+    resources: [
+      BackupResource.fromArn('arn1'),
+    ],
+    role: customRole,
+  });
+
+  // THEN
+  expect(selection.role).toBe(customRole);
+  expect(selection.role.roleArn).toBe(customRole.roleArn);
 });
