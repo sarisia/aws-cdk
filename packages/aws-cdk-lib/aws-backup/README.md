@@ -58,6 +58,20 @@ plan.addSelection('Selection', {
 
 If not specified, a new IAM role with a managed policy for backup will be
 created for the selection. The `BackupSelection` implements `IGrantable`.
+The IAM role can be accessed via the `role` property.
+
+```ts
+declare const plan: backup.BackupPlan;
+
+const selection = plan.addSelection('Selection', {
+  resources: [
+    backup.BackupResource.fromTag('stage', 'prod'),
+  ],
+});
+
+// Access the role
+const role = selection.role;
+```
 
 To disable the plan from assigning the default `AWSBackupServiceRolePolicyForBackup` backup policy use the `disableDefaultBackupPolicy` property.
 
